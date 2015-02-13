@@ -169,7 +169,7 @@ namespace CueSharp
             get { return _cueFileName; }
         }
 
-        public ReadOnlyCollection<string> CueLines
+        public IEnumerable<string> CueLines
         {
             get { return _cueLines.AsReadOnly(); }
         }
