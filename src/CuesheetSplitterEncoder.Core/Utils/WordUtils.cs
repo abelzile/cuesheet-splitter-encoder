@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Text.RegularExpressions;
 
 
@@ -10,53 +11,46 @@ namespace CuesheetSplitterEncoder.Core.Utils
     {
         // This class is inspired by the Grammartron plugin for Mp3tag (see http://forums.mp3tag.de/index.php?showtopic=13185&hl=grammartron).
 
-        static readonly char[] Punctuation = { '.', ',', '!', '?', ':', ';', '"', '\'', '-', '(', ')' };
+        static readonly char[] Punctuation =
+        {
+            '!', '"', '#', '%', '&', '\'', '(', ')', '*', ',', '-', '.', '/', ':',
+            ';', '?', '@', '[', '\\', ']', '_', '{', '}',
+        };
+
         static readonly string[] ArticlesConjunctionsPrepositions =
         {
-            "A", "An", "And", "As", "At", 
-            "But", "By", 
-            "De", 
-            "Et", 
-            "For", 
-            "From", 
-            "In", "Into", 
-            "Le", 
-            "Nor", 
-            "Of", "Off", "On", "Onto", "Or", 
-            "So", 
-            "Than", "The", "To", 
-            "Upon", 
-            "Von", 
-            "With"
+            "a", "an", "and", "as", "at", "but", "by", "de",
+            "et", "for", "from", "in", "into", "le", "nor", "of", "off", "on", "onto", "or", "so", "than", "the", "to",
+            "upon", "von", "with",
         };
+
         static readonly string[] CommonVerbs =
         {
-            "Add", "Allow", "Appear", "Ask", 
-            "Be", "Become", "Begin", "Believe", "Bring", "Build", "Buy", 
-            "Call", "Can", "Change", "Come", "Consider", "Continue", "Could", "Create", "Cut",
-            "Die", "Do", 
-            "Expect", 
-            "Fall", "Feel", "Find", "Follow", 
-            "Get", "Give", "Go", "Grow", 
-            "Happen", "Have", "Hear", "Help", "Hold", 
-            "Include", 
-            "Keep", "Kill", "Know", 
-            "Lead", "Learn", "Leave", "Let", "Like", "Live", "Look", "Lose", "Love", 
-            "Make", "May", "Mean", "Meet", "Might", "Move", "Must", 
-            "Need", 
-            "Offer", "Open",
-            "Pay", "Play", "Provide", "Put", 
-            "Reach", "Read", "Remain", "Remember", "Run", 
-            "Say", "See", "Seem", "Send", "Serve", "Set", "Should", "Show", "Sit", "Speak", "Spend", "Stand", "Start", "Stay", "Stop", 
-            "Take", "Talk", "Tell", "Think", "Try", "Turn", 
-            "Understand", "Use", 
-            "Wait", "Walk", "Want", "Watch", "Will", "Win", "Work", "Would", "Write",
+            "add", "allow", "appear", "ask", "be", "become", "begin", "believe",
+            "bring", "build", "buy", "call", "can", "change", "come", "consider", "continue", "could", "create", "cut",
+            "die", "do", "expect", "fall", "feel", "find", "follow", "get", "give", "go", "grow", "happen", "have",
+            "hear", "help", "hold", "include", "keep", "kill", "know", "lead", "learn", "leave", "let", "like", "live",
+            "look", "lose", "love", "make", "may", "mean", "meet", "might", "move", "must", "need", "offer", "open",
+            "pay", "play", "provide", "put", "reach", "read", "remain", "remember", "run", "say", "see", "seem", "send",
+            "serve", "set", "should", "show", "sit", "speak", "spend", "stand", "start", "stay", "stop", "take", "talk",
+            "tell", "think", "try", "turn", "understand", "use", "wait", "walk", "want", "watch", "will", "win", "work",
+            "would", "write",
         };
-        static readonly Regex RomanNumerals = new Regex("^[MDCLXVI" + new string(Punctuation) + "]+$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        static readonly string[] RomanNumeralWordMatch =
+        {
+            "i'll", "i'm", "i'd", "mild", "dim", "lid", "mid", "mil", "mix",
+            "vim", "id", "li", "mi",
+        };
+
+        static readonly Regex ModernRomanNumeralsFlexible = new Regex(
+            "^(?=[MDCLXVI])M*(C[MD]|D?C*)(X[CL]|L?X*)(I[XV]|V?I*)$",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         public static string ToTitleCase(string text)
         {
-            if (string.IsNullOrWhiteSpace(text)) return "";
+            if (string.IsNullOrWhiteSpace(text)) 
+                return text;
 
             string[] words = text.Trim().Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -80,13 +74,14 @@ namespace CuesheetSplitterEncoder.Core.Utils
 
         static string UpperFirstLetter(string word)
         {
-            if (string.IsNullOrWhiteSpace(word)) return "";
+            if (string.IsNullOrWhiteSpace(word)) 
+                return word;
 
             char[] cs = word.ToCharArray();
 
             for (int i = 0; i < cs.Length; i++)
             {
-                if (IsPunctuation(cs[i])) continue;
+                if (char.IsPunctuation(cs[i])) continue;
 
                 cs[i] = char.ToUpper(cs[i]);
                 break;
@@ -101,7 +96,7 @@ namespace CuesheetSplitterEncoder.Core.Utils
                 return word;
 
             // Do not lower if first word or after punctuation.
-            if (string.IsNullOrWhiteSpace(prevWord) || IsPunctuation(prevWord.Last())) 
+            if (string.IsNullOrWhiteSpace(prevWord) || char.IsPunctuation(prevWord.Last())) 
                 return word;
 
             // Do not lower if last word.
@@ -125,24 +120,94 @@ namespace CuesheetSplitterEncoder.Core.Utils
         static string UpperRomanNumerals(string word)
         {
             if (string.IsNullOrWhiteSpace(word)) 
-                return "";
+                return word;
 
-            return (RomanNumerals.IsMatch(word)) ? word.ToUpperInvariant() : word;
+            if (IsRomanNumeralWordMatch(word)) 
+                return word;
+
+            if (!ContainsPunctuation(word)) 
+                return (ModernRomanNumeralsFlexible.IsMatch(word)) ? word.ToUpperInvariant() : word;
+
+            if (!DoesStartOrEndWithPunctuation(word)) 
+                return (ModernRomanNumeralsFlexible.IsMatch(word)) ? word.ToUpperInvariant() : word;
+
+            // Strip punctuation from the start and end of the word and then check if a Roman Numeral.
+
+            char[] origChars = word.ToCharArray();
+            char[] bareChars = new char[origChars.Length];
+            string preChars = "";
+            string postChars = "";
+
+            int start = 0;
+            while (start < origChars.Length && char.IsPunctuation(origChars[start]))
+            {
+                preChars += origChars[start];
+                bareChars[start] = ' ';
+                ++start;
+            }
+
+            int end = origChars.Length - 1;
+            while (end >= 0 && char.IsPunctuation(origChars[end]))
+            {
+                postChars += origChars[end];
+                bareChars[end] = ' ';
+                --end;
+            }
+
+            int len = end - start + 1;
+
+            if (len <= 0) 
+                return word;
+
+            Array.Copy(origChars, start, bareChars, start, len);
+
+            string newWord = new string(bareChars).Trim();
+
+            return ModernRomanNumeralsFlexible.IsMatch(newWord)
+                ? preChars + newWord.ToUpperInvariant() + postChars
+                : word;
         }
 
-        static bool IsPunctuation(char chr)
+        static bool DoesStartOrEndWithPunctuation(string word)
         {
-            return Punctuation.Contains(chr);
+            if (string.IsNullOrWhiteSpace(word))
+                return false;
+
+            char[] chars = word.ToCharArray();
+
+            return char.IsPunctuation(chars[0]) || char.IsPunctuation(chars[chars.Length - 1]);
         }
 
         static bool IsArticleConjunctionOrPreposition(string word)
         {
+            if (string.IsNullOrWhiteSpace(word))
+                return false;
+
             return ArticlesConjunctionsPrepositions.Any(s => string.Equals(word, s, StringComparison.OrdinalIgnoreCase));
         }
 
         static bool IsCommonVerb(string word)
         {
+            if (string.IsNullOrWhiteSpace(word))
+                return false;
+
             return CommonVerbs.Any(s => string.Equals(word, s, StringComparison.OrdinalIgnoreCase));
+        }
+
+        static bool ContainsPunctuation(string word)
+        {
+            if (string.IsNullOrWhiteSpace(word))
+                return false;
+
+            return word.ToCharArray().Any(char.IsPunctuation);
+        }
+
+        static bool IsRomanNumeralWordMatch(string word)
+        {
+            if (string.IsNullOrWhiteSpace(word))
+                return false;
+
+            return RomanNumeralWordMatch.Any(s => string.Equals(word, s, StringComparison.OrdinalIgnoreCase));
         }
     }
 }
