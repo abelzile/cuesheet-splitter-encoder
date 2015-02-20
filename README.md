@@ -41,8 +41,6 @@ cse.exe -e fhgaacenc:3 -i "C:\path-to-cue\cuesheet.cue" -o "C:\output-path" -c "
                              executable directory or made accessible via the
                              System PATH environment variable.
 
-                             Non-standard cue sheets are not supported.
-
                              *Ensure the FLAC decoder is installed if
                              splitting Monkey's Audio files. MAC.exe does not
                              provide any splitting functionality so a
