@@ -42,6 +42,19 @@
   <ItemGroup>
     <Compile Include="CommandLine\CommandLineBuilder.cs" />
     <Compile Include="CommandLine\CommandLineRunner.cs" />
+    <Compile Include="CueSheet\CueSheet.cs" />
+    <Compile Include="CueSheet\Parsers\CueSheetParser.cs" />
+    <Compile Include="CueSheet\File.cs" />
+    <Compile Include="CueSheet\FileLine.cs" />
+    <Compile Include="CueSheet\Parsers\FileLineCommentParser.cs" />
+    <Compile Include="CueSheet\Parsers\FileLineFileParser.cs" />
+    <Compile Include="CueSheet\Parsers\FileLineIndexParser.cs" />
+    <Compile Include="CueSheet\Parsers\FileLineSingleValueParser.cs" />
+    <Compile Include="CueSheet\Parsers\FileLineTrackParser.cs" />
+    <Compile Include="CueSheet\Index.cs" />
+    <Compile Include="CueSheet\IndexTime.cs" />
+    <Compile Include="CueSheet\Parsers\IParser.cs" />
+    <Compile Include="CueSheet\Track.cs" />
     <Compile Include="Encoders\AacEncoder.cs" />
     <Compile Include="Encoders\Encoder.cs" />
     <Compile Include="Encoders\EncoderFactory.cs" />
@@ -60,12 +73,6 @@
     <Compile Include="Utils\IOUtils.cs" />
     <Compile Include="Utils\PathUtils.cs" />
     <Compile Include="Utils\WordUtils.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\lib\cuesharp\CueSharp.csproj">
-      <Project>{aec446c6-fa7d-4224-83c4-87c270759403}</Project>
-      <Name>CueSharp</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

@@ -1,4 +1,4 @@
-﻿using CueSharp;
+﻿using CuesheetSplitterEncoder.Core.CueSheet;
 using CuesheetSplitterEncoder.Core.Taggers;
 
 

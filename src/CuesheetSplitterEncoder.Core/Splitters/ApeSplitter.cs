@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using CueSharp;
 using CuesheetSplitterEncoder.Core.CommandLine;
 using CuesheetSplitterEncoder.Core.Utils;
 
@@ -10,14 +9,14 @@ namespace CuesheetSplitterEncoder.Core.Splitters
 {
     public class ApeSplitter : ISplitter
     {
-        readonly CueSheet _cueSheet;
+        readonly CueSheet.CueSheet _cueSheet;
         readonly SplitterFactory _factory;
         IEnumerable<SplitResult> _results;
         readonly string _apeFilePath;
         string _tempWavPath;
         string _tempFlacPath;
 
-        public ApeSplitter(CueSheet cueSheet, SplitterFactory factory)
+        public ApeSplitter(CueSheet.CueSheet cueSheet, string cueFilePath, SplitterFactory factory)
         {
             if (cueSheet == null)
                 throw new ArgumentNullException("cueSheet");
@@ -25,15 +24,15 @@ namespace CuesheetSplitterEncoder.Core.Splitters
             _cueSheet = cueSheet;
             _factory = factory;
 
-            string cueDir = Path.GetDirectoryName(_cueSheet.CueFileName);
+            string cueDir = Path.GetDirectoryName(cueFilePath);
 
             if (cueDir == null)
                 throw new Exception("Cue file directory is null.");
             
-            _apeFilePath = Path.Combine(cueDir, _cueSheet.File);
+            _apeFilePath = Path.Combine(cueDir, _cueSheet.Files[0].FileName);
         }
 
-        public CueSheet CueSheet
+        public CueSheet.CueSheet CueSheet
         {
             get { return _cueSheet; }
         }
@@ -51,20 +50,20 @@ namespace CuesheetSplitterEncoder.Core.Splitters
             var wavToFlacCmd = new CommandLineRunner(BuildWavToFlacCmd(_tempWavPath, out _tempFlacPath));
             wavToFlacCmd.Run();
 
-            string orig = _cueSheet.File;
-            _cueSheet.File = _tempFlacPath;
+            string orig = _cueSheet.Files[0].FileName;
+            _cueSheet.Files[0].FileName = _tempFlacPath;
 
             var splitter = _factory.Build();
             splitter.Split();
 
-            _cueSheet.File = orig;
+            _cueSheet.Files[0].FileName = orig;
 
             _results = splitter.Results;
         }
 
         string BuildWavToFlacCmd(string tempApeWavPath, out string tempFlacPath)
         {
-            tempFlacPath = Path.Combine(Path.GetTempPath(), string.Format("flac-{0}.flac", Guid.NewGuid().ToString("N")));
+            tempFlacPath = Path.Combine(Path.GetTempPath(), string.Format("{0}.flac", Guid.NewGuid().ToString("N")));
 
             return new CommandLineBuilder("flac.exe")
                 .AppendDash("0")
@@ -79,7 +78,7 @@ namespace CuesheetSplitterEncoder.Core.Splitters
 
         string BuildApeToWavArgs(out string tempApeWavPath)
         {
-            tempApeWavPath = Path.Combine(Path.GetTempPath(), string.Format("ape-{0}.wav", Guid.NewGuid().ToString("N")));
+            tempApeWavPath = Path.Combine(Path.GetTempPath(), string.Format("{0}.wav", Guid.NewGuid().ToString("N")));
 
             return new CommandLineBuilder("mac.exe")
                 .AppendValue(_apeFilePath)

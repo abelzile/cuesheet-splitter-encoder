@@ -5,7 +5,8 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using CueSharp;
+using CuesheetSplitterEncoder.Core.CueSheet;
+using CuesheetSplitterEncoder.Core.CueSheet.Parsers;
 using CuesheetSplitterEncoder.Core.Encoders;
 using CuesheetSplitterEncoder.Core.Splitters;
 using CuesheetSplitterEncoder.Core.Taggers;
@@ -61,8 +62,6 @@ namespace CuesheetSplitterEncoder.CmdUi
                                        .Append("or made accessible via the System PATH environment variable. ")
                                        .AppendLine()
                                        .AppendLine()
-                                       .AppendLine("Non-standard cue sheets are not supported.")
-                                       .AppendLine()
                                        .Append("*Ensure the FLAC decoder is installed if splitting Monkey's Audio files. ")
                                        .Append("MAC.exe does not provide any splitting functionality so a transcode to FLAC is required.")
                                        .ToString(),
@@ -85,17 +84,11 @@ namespace CuesheetSplitterEncoder.CmdUi
 
                 optionValues.Validate();
 
-                var cueSheet = new CueSheet(optionValues.CueFilePath);
+                var cueSheetParser = new CueSheetParser(optionValues.CueFilePath);
 
-                string nonStandardReason;
-                if (!cueSheet.IsStandard(out nonStandardReason))
-                {
-                    throw new Exception("Cue sheet appears to be non-standard: " + nonStandardReason);
-                }
-
-                cueSheet.ToTitleCase();
-
-                var splitterFactory = new SplitterFactory(cueSheet);
+                CueSheet cueSheet = cueSheetParser.Parse().ToTitleCase();
+                
+                var splitterFactory = new SplitterFactory(cueSheet, optionValues.CueFilePath);
                 var encoderFactory = new EncoderFactory(optionValues.EncoderQuality);
                 var taggerFactory = new TaggerFactory(cueSheet, optionValues.CoverPath);
                 var stopwatch = new Stopwatch();
@@ -105,7 +98,24 @@ namespace CuesheetSplitterEncoder.CmdUi
                 using (ISplitter splitter = splitterFactory.Build())
                 {
                     Console.WriteLine("Starting...");
-                    Console.WriteLine("Splitting cue sheet...");
+
+                    string msg;
+
+                    if (cueSheet.IsStandard)
+                    {
+                        msg = "standard";
+                    }
+                    else
+                    {
+                        msg = "nonstandard";
+
+                        if (cueSheet.IsNoncompliant)
+                        {
+                            msg += ", noncompliant";
+                        }
+                    }
+
+                    Console.WriteLine("Splitting " + msg + " cue sheet into WAV files...");
 
                     stopwatch.Start();
 
@@ -113,7 +123,9 @@ namespace CuesheetSplitterEncoder.CmdUi
 
                     DirectoryInfo encodedOutputDirInfo = Directory.CreateDirectory(Path.Combine(optionValues.OutputPath, encoder.FileType));
 
-                    int trackCountWidth = cueSheet.Tracks.Count.ToString().Length;
+                    int trackCountWidth = cueSheet.IsStandard
+                        ? cueSheet.Files[0].Tracks.Count.ToString().Length
+                        : cueSheet.Files.Count.ToString().Length;
 
                     Parallel.ForEach(
                         splitter.Results,
@@ -133,12 +145,13 @@ namespace CuesheetSplitterEncoder.CmdUi
                             string encodedOutputPath = BuildEncodedFileOutputPath(
                                 encodedOutputDirInfo.FullName,
                                 title,
-                                track.TrackNumber,
+                                track.TrackNum,
                                 trackCountWidth,
                                 encoder.FileExtension);
 
                             IOUtils.FileMove(tempEncodedFilePath, encodedOutputPath);
                         });
+                    
                 }
 
                 Console.WriteLine("Copying original files to output directory...");
@@ -148,7 +161,6 @@ namespace CuesheetSplitterEncoder.CmdUi
                 stopwatch.Stop();
 
                 Console.WriteLine("Done. Time elapsed: {0}", stopwatch.Elapsed);
-
             }
             catch (OptionException e)
             {
@@ -177,6 +189,15 @@ namespace CuesheetSplitterEncoder.CmdUi
 
         static void CopyOriginalsToOutputPath(string outputPath, string cueFilePath, CueSheet sheet, string coverPath)
         {
+            if (string.IsNullOrWhiteSpace(outputPath))
+                throw new ArgumentNullException("outputPath");
+
+            if (string.IsNullOrWhiteSpace(cueFilePath))
+                throw new ArgumentNullException("cueFilePath");
+
+            if (sheet == null)
+                throw new ArgumentNullException("sheet");
+
             if (!string.IsNullOrWhiteSpace(coverPath))
             {
                 IOUtils.FileCopy(coverPath, Path.Combine(outputPath, "cover" + Path.GetExtension(coverPath)));
@@ -188,15 +209,22 @@ namespace CuesheetSplitterEncoder.CmdUi
 
             IOUtils.FileCopy(cueFilePath, cueOutputPath);
 
-            string sourceFilePath = Path.Combine(Path.GetDirectoryName(cueFilePath), sheet.File);
-            string destFilePath = Path.Combine(outputDirInfo.FullName, sheet.File);
+            foreach (var file in sheet.Files)
+            {
+                string cueDirName = Path.GetDirectoryName(cueFilePath);
 
-            IOUtils.FileCopy(sourceFilePath, destFilePath);
+                if (cueDirName == null)
+                    throw new Exception("Cue file path is missing directory.");
+
+                IOUtils.FileCopy(
+                    Path.Combine(cueDirName, file.FileName), 
+                    Path.Combine(outputDirInfo.FullName, file.FileName));
+            }
         }
 
         static string GetOriginalFileDirName(CueSheet sheet)
         {
-            string ext = sheet.GetPathExtension();
+            string ext = Path.GetExtension(sheet.Files[0].FileName);
 
             return (ext != null) ? ext.ToLowerInvariant().Substring(1) : "original";
         }

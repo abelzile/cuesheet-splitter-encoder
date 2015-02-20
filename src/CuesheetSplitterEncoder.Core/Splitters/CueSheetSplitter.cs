@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using CueSharp;
+using System.Linq;
 using CuesheetSplitterEncoder.Core.CommandLine;
+using CuesheetSplitterEncoder.Core.CueSheet;
 using CuesheetSplitterEncoder.Core.Utils;
 
 
@@ -10,63 +11,80 @@ namespace CuesheetSplitterEncoder.Core.Splitters
 {
     public class CueSheetSplitter
     {
-        readonly CueSheet _cueSheet;
-        readonly string _filePath;
+        readonly CueSheet.CueSheet _cueSheet;
+        readonly string _cueFilePath;
         readonly Func<string, string, Index, Index, string> _buildArgsFunc;
 
-        public CueSheetSplitter(CueSheet cueSheet, Func<string, string, Index, Index, string> buildArgsFunc)
+        public CueSheetSplitter(CueSheet.CueSheet cueSheet, string cueFilePath, Func<string, string, Index, Index, string> buildArgsFunc)
         {
             if (cueSheet == null)
                 throw new ArgumentNullException("cueSheet");
+
+            if (string.IsNullOrWhiteSpace(cueFilePath))
+                throw new ArgumentNullException("cueFilePath");
 
             if (buildArgsFunc == null)
                 throw new ArgumentNullException("buildArgsFunc");
 
             _cueSheet = cueSheet;
+            _cueFilePath = cueFilePath;
             _buildArgsFunc = buildArgsFunc;
-
-            if (Path.IsPathRooted(_cueSheet.File))
-            {
-                _filePath = _cueSheet.File;
-            }
-            else
-            {
-                string cueDir = Path.GetDirectoryName(_cueSheet.CueFileName);
-
-                if (cueDir == null)
-                    throw new Exception("Cue file directory is null.");
-
-                _filePath = Path.Combine(cueDir, _cueSheet.File);
-            }
         }
 
         public IEnumerable<SplitResult> Split()
         {
             var results = new List<SplitResult>();
 
-            foreach (Track track in _cueSheet.Tracks)
+            IList<Track> tracks = _cueSheet.IsStandard
+                ? _cueSheet.Files[0].Tracks
+                : _cueSheet.Files.Select(file => file.Tracks[0]).ToList();
+
+            for (int i = 0; i < tracks.Count; ++i)
             {
+                Track track = tracks[i];
+
                 string tempWavPath = Path.Combine(
                     Path.GetTempPath(),
-                    string.Format("{0}-{1}.wav", track.TrackNumber, Guid.NewGuid().ToString("N")));
+                    string.Format("{0}-{1}.wav", track.TrackNum, Guid.NewGuid().ToString("N")));
 
                 Index skip = track.FindIndexByNumber(1);
 
-                if (skip == null)
+                if (skip == null) 
                     throw new Exception(string.Format("Index 1 not found in cue sheet for track '{0}'.", track.Title));
 
                 Index until = null;
-                Track nextTrack = _cueSheet.Tracks.Next(track);
 
-                if (nextTrack != null)
+                if (_cueSheet.IsStandard)
                 {
-                    until = nextTrack.FindIndexByNumber(1);
+                    Track nextTrack = CueSheetExt.Next(tracks, track);
 
-                    if (until == null)
-                        throw new Exception(string.Format((string)"Index 1 not found in cue sheet for track '{0}'.", (object)nextTrack.Title));
+                    if (nextTrack != null)
+                    {
+                        until = nextTrack.FindIndexByNumber(1);
+
+                        if (until == null)
+                            throw new Exception(string.Format("Index 1 not found in cue sheet for track '{0}'.", nextTrack.Title));
+                    }
                 }
 
-                var runner = new CommandLineRunner(_buildArgsFunc(_filePath, tempWavPath, skip, until));
+                string fileName = _cueSheet.IsStandard ? _cueSheet.Files[0].FileName : _cueSheet.Files[i].FileName;
+
+                string filePath;
+                if (Path.IsPathRooted(fileName))
+                {
+                    filePath = fileName;
+                }
+                else
+                {
+                    string cueDirName = Path.GetDirectoryName(_cueFilePath);
+
+                    if (cueDirName == null) 
+                        throw new Exception("Cue file directory is null.");
+
+                    filePath = Path.Combine(cueDirName, fileName);
+                }
+
+                var runner = new CommandLineRunner(_buildArgsFunc(filePath, tempWavPath, skip, until));
                 runner.Run();
 
                 results.Add(new SplitResult(track, tempWavPath));

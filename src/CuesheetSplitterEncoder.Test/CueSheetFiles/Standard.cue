@@ -1,0 +1,26 @@
+REM GENRE "Death Metal"
+REM DATE 1994
+REM DISCID 1F034504
+REM COMMENT "ExactAudioCopy v1.0b3"
+PERFORMER "AMORPHIS"
+TITLE "Black winter day"
+FILE "AMORPHIS - Black winter day.flac" WAVE
+  TRACK 01 AUDIO
+    TITLE "Black winter day"
+    PERFORMER "AMORPHIS"
+    INDEX 01 00:00:00
+  TRACK 02 AUDIO
+    TITLE "Folk of the north"
+    PERFORMER "AMORPHIS"
+    INDEX 00 03:48:62
+    INDEX 01 03:50:00
+  TRACK 03 AUDIO
+    TITLE "Moon and sun"
+    PERFORMER "AMORPHIS"
+    INDEX 00 05:09:40
+    INDEX 01 05:10:27
+  TRACK 04 AUDIO
+    TITLE "Moon and sun Part II: North's son"
+    PERFORMER "AMORPHIS"
+    INDEX 00 08:45:55
+    INDEX 01 08:47:00

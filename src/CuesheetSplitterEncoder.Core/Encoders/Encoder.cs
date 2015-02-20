@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
-using CueSharp;
 using CuesheetSplitterEncoder.Core.CommandLine;
+using CuesheetSplitterEncoder.Core.CueSheet;
 using CuesheetSplitterEncoder.Core.Taggers;
 
 
@@ -49,7 +49,7 @@ namespace CuesheetSplitterEncoder.Core.Encoders
         {
             return Path.Combine(
                 Path.GetTempPath(),
-                string.Format("{0}-{1}{2}", track.TrackNumber, Guid.NewGuid().ToString("N"), FileExtension));
+                string.Format("{0}-{1}{2}", track.TrackNum, Guid.NewGuid().ToString("N"), FileExtension));
         }
     }
 }

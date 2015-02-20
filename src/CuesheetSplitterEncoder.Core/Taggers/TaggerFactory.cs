@@ -1,5 +1,4 @@
 ﻿using System;
-using CueSharp;
 using CuesheetSplitterEncoder.Core.Encoders;
 
 
@@ -7,16 +6,17 @@ namespace CuesheetSplitterEncoder.Core.Taggers
 {
     public class TaggerFactory
     {
-        readonly CueSheet _cueSheet;
+        readonly CueSheet.CueSheet _cueSheet;
         readonly string _coverFilePath;
 
-        public TaggerFactory(CueSheet cueSheet, string coverFilePath)
+        public TaggerFactory(CueSheet.CueSheet cueSheet, string coverFilePath)
         {
             _cueSheet = cueSheet;
             _coverFilePath = coverFilePath;
         }
 
-        public TaggerFactory(CueSheet cueSheet) : this(cueSheet, null)
+        public TaggerFactory(CueSheet.CueSheet cueSheet)
+            : this(cueSheet, null)
         {
         }
 

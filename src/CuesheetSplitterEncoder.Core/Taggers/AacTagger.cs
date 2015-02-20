@@ -1,6 +1,5 @@
 ﻿using System;
-using CueSharp;
-using CuesheetSplitterEncoder.Core.Utils;
+using CuesheetSplitterEncoder.Core.CueSheet;
 using TagLib;
 
 
@@ -8,10 +7,10 @@ namespace CuesheetSplitterEncoder.Core.Taggers
 {
     public class AacTagger : ITagger
     {
-        readonly CueSheet _cueSheet;
+        readonly CueSheet.CueSheet _cueSheet;
         readonly string _coverFilePath;
 
-        public AacTagger(CueSheet cueSheet, string coverFilePath)
+        public AacTagger(CueSheet.CueSheet cueSheet, string coverFilePath)
         {
             if (cueSheet == null)
                 throw new ArgumentNullException("cueSheet");
@@ -29,27 +28,32 @@ namespace CuesheetSplitterEncoder.Core.Taggers
                 throw new ArgumentNullException("track");
 
             string date;
-            bool hasDate = _cueSheet.TryGetComment("DATE", out date);
-            bool hasTrackNum = track.TrackNumber != 0;
+            bool hasDate = _cueSheet.TryGetCommentValue("DATE", out date);
+            bool hasTrackNum = track.TrackNum != 0;
 
-            using (File file = File.Create(inputFilePath))
+            using (TagLib.File file = TagLib.File.Create(inputFilePath))
             {
-                file.Tag.Title = track.Title;
-                file.Tag.Performers = new[] { _cueSheet.Performer };
+                Tag tag = file.Tag;
+
+                tag.Title = track.Title;
+                tag.Performers = new[] { _cueSheet.Performer };
                 if (hasDate)
                 {
-                    file.Tag.Year = uint.Parse(date);
+                    tag.Year = uint.Parse(date);
                 }
-                file.Tag.Album = _cueSheet.Title;
+                tag.Album = _cueSheet.Title;
                 if (hasTrackNum)
                 {
-                    file.Tag.Track = (uint)track.TrackNumber;
+                    tag.Track = (uint)track.TrackNum;
                 }
-                file.Tag.TrackCount = (uint)_cueSheet.Tracks.Count;
+
+                tag.TrackCount = _cueSheet.IsStandard
+                    ? (uint)_cueSheet.Files[0].Tracks.Count
+                    : (uint)_cueSheet.Files.Count;
 
                 if (!string.IsNullOrWhiteSpace(_coverFilePath))
                 {
-                    file.Tag.Pictures = new IPicture[] { new Picture(_coverFilePath) };
+                    tag.Pictures = new IPicture[] { new Picture(_coverFilePath) };
                 }
 
                 file.Save();

@@ -5,9 +5,9 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CuesheetSplitterEncoder.CmdUi", "CuesheetSplitterEncoder.CmdUi\CuesheetSplitterEncoder.CmdUi.csproj", "{081B5D04-E5EA-4CFE-8843-492A318AC982}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CueSharp", "..\lib\cuesharp\CueSharp.csproj", "{AEC446C6-FA7D-4224-83C4-87C270759403}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CuesheetSplitterEncoder.Core", "CuesheetSplitterEncoder.Core\CuesheetSplitterEncoder.Core.csproj", "{28A81AA4-6BC9-4150-A499-861BCD526C6D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CuesheetSplitterEncoder.Test", "CuesheetSplitterEncoder.Test\CuesheetSplitterEncoder.Test.csproj", "{37CC597F-AF1F-4039-AB44-C9A47B284414}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,14 +19,14 @@ Global
 		{081B5D04-E5EA-4CFE-8843-492A318AC982}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{081B5D04-E5EA-4CFE-8843-492A318AC982}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{081B5D04-E5EA-4CFE-8843-492A318AC982}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AEC446C6-FA7D-4224-83C4-87C270759403}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AEC446C6-FA7D-4224-83C4-87C270759403}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AEC446C6-FA7D-4224-83C4-87C270759403}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AEC446C6-FA7D-4224-83C4-87C270759403}.Release|Any CPU.Build.0 = Release|Any CPU
 		{28A81AA4-6BC9-4150-A499-861BCD526C6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{28A81AA4-6BC9-4150-A499-861BCD526C6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28A81AA4-6BC9-4150-A499-861BCD526C6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28A81AA4-6BC9-4150-A499-861BCD526C6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37CC597F-AF1F-4039-AB44-C9A47B284414}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37CC597F-AF1F-4039-AB44-C9A47B284414}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37CC597F-AF1F-4039-AB44-C9A47B284414}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37CC597F-AF1F-4039-AB44-C9A47B284414}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using CueSharp;
 using CuesheetSplitterEncoder.Core.Utils;
 
 
@@ -8,11 +7,11 @@ namespace CuesheetSplitterEncoder.Core.Splitters
 {
     public class Splitter : ISplitter
     {
-        readonly CueSheet _cueSheet;
+        readonly CueSheet.CueSheet _cueSheet;
         readonly CueSheetSplitter _cueSheetSplitter;
         IEnumerable<SplitResult> _results;
 
-        public Splitter(CueSheet cueSheet, CueSheetSplitter cueSheetSplitter)
+        public Splitter(CueSheet.CueSheet cueSheet, CueSheetSplitter cueSheetSplitter)
         {
             if (cueSheet == null)
                 throw new ArgumentNullException("cueSheet");
@@ -24,7 +23,7 @@ namespace CuesheetSplitterEncoder.Core.Splitters
             _cueSheetSplitter = cueSheetSplitter;
         }
 
-        public CueSheet CueSheet
+        public CueSheet.CueSheet CueSheet
         {
             get { return _cueSheet; }
         }

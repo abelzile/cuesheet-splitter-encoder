@@ -48,10 +48,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\lib\cuesharp\CueSharp.csproj">
-      <Project>{aec446c6-fa7d-4224-83c4-87c270759403}</Project>
-      <Name>CueSharp</Name>
-    </ProjectReference>
     <ProjectReference Include="..\CuesheetSplitterEncoder.Core\CuesheetSplitterEncoder.Core.csproj">
       <Project>{28a81aa4-6bc9-4150-a499-861bcd526c6d}</Project>
       <Name>CuesheetSplitterEncoder.Core</Name>

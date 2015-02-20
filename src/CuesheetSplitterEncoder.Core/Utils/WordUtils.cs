@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mail;
 using System.Text.RegularExpressions;
 
 
@@ -10,12 +9,6 @@ namespace CuesheetSplitterEncoder.Core.Utils
     public static class WordUtils
     {
         // This class is inspired by the Grammartron plugin for Mp3tag (see http://forums.mp3tag.de/index.php?showtopic=13185&hl=grammartron).
-
-        static readonly char[] Punctuation =
-        {
-            '!', '"', '#', '%', '&', '\'', '(', ')', '*', ',', '-', '.', '/', ':',
-            ';', '?', '@', '[', '\\', ']', '_', '{', '}',
-        };
 
         static readonly string[] ArticlesConjunctionsPrepositions =
         {

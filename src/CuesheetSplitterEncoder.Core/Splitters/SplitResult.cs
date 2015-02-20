@@ -1,5 +1,5 @@
 ﻿using System;
-using CueSharp;
+using CuesheetSplitterEncoder.Core.CueSheet;
 
 
 namespace CuesheetSplitterEncoder.Core.Splitters

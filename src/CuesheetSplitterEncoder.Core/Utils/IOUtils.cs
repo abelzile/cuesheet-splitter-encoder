@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 
 
 namespace CuesheetSplitterEncoder.Core.Utils
@@ -29,6 +31,19 @@ namespace CuesheetSplitterEncoder.Core.Utils
             {
                 File.Delete(path);
             }
+        }
+
+        public static string[] ReadAllLines(this TextReader textReader)
+        {
+            var lines = new List<String>();
+            string line;
+
+            while ((line = textReader.ReadLine()) != null)
+            {
+                lines.Add(line);
+            }
+
+            return lines.ToArray();
         }
     }
 }
