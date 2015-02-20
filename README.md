@@ -30,7 +30,6 @@ cse.exe -e fhgaacenc:3 -i "C:\path-to-cue\cuesheet.cue" -o "C:\output-path" -c "
                              copied to the executable directory or made
                              accessible via the System PATH environment
                              variable. Visit http://wiki.hydrogenaud.io/index.
-
                              php?title=AAC_encoders to learn more about them.
 -i, --input=PATH           The PATH to the cue sheet file.
 
