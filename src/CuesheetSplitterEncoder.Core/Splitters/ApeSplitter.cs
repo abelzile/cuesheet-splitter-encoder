@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using CuesheetSplitterEncoder.Core.CommandLine;
+using CuesheetSplitterEncoder.Core.Exceptions;
 using CuesheetSplitterEncoder.Core.Utils;
 
 
@@ -47,9 +48,15 @@ namespace CuesheetSplitterEncoder.Core.Splitters
             var apeToWavCmd = new CommandLineRunner(BuildApeToWavArgs(out _tempWavPath));
             apeToWavCmd.Run();
 
+            if (apeToWavCmd.ExitCode != 0)
+                throw new CommandLineOperationException(apeToWavCmd.StandardError, apeToWavCmd.ExitCode);
+
             var wavToFlacCmd = new CommandLineRunner(BuildWavToFlacCmd(_tempWavPath, out _tempFlacPath));
             wavToFlacCmd.Run();
 
+            if (wavToFlacCmd.ExitCode != 0)
+                throw new CommandLineOperationException(wavToFlacCmd.StandardError, wavToFlacCmd.ExitCode);
+            
             string orig = _cueSheet.Files[0].FileName;
             _cueSheet.Files[0].FileName = _tempFlacPath;
 

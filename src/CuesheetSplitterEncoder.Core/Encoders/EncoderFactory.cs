@@ -1,5 +1,5 @@
 using System;
-using CuesheetSplitterEncoder.Core.CommandLine;
+using Builder = CuesheetSplitterEncoder.Core.CommandLine.CommandLineBuilder;
 
 
 namespace CuesheetSplitterEncoder.Core.Encoders
@@ -15,19 +15,38 @@ namespace CuesheetSplitterEncoder.Core.Encoders
 
         public IEncoder Build(EncoderType encoderType)
         {
+            int qualityAsInt = (int)decimal.Truncate(_quality);
+
             switch (encoderType)
             {
                 case EncoderType.Fhgaacenc:
                 {
                     return new AacEncoder(
-                        (int)decimal.Truncate(_quality),
+                        qualityAsInt,
                         (inputFilePath, outputFilePath, quality) =>
-                            new CommandLineBuilder("fhgaacenc.exe")
+                            new Builder("fhgaacenc.exe")
                                 .AppendDoubleDash(
                                     "vbr",
-                                    ((int)decimal.Truncate(_quality)).ToString(),
-                                    CommandLineBuilder.SeparatorType.Space,
-                                    CommandLineBuilder.QuoteValue.No)
+                                    qualityAsInt.ToString(),
+                                    Builder.SeparatorType.Space,
+                                    Builder.QuoteValue.No)
+                                .AppendDoubleDash("quiet")
+                                .AppendValue(inputFilePath)
+                                .AppendValue(outputFilePath)
+                                .ToString());
+                }
+                case EncoderType.Lame:
+                {
+                    return new Mp3Encoder(
+                        qualityAsInt,
+                        (inputFilePath, outputFilePath, quality) => 
+                            new Builder("lame.exe")
+                                .AppendDash(
+                                    "V",
+                                    qualityAsInt.ToString(),
+                                    Builder.SeparatorType.None,
+                                    Builder.QuoteValue.No)
+                                .AppendDoubleDash("silent")
                                 .AppendValue(inputFilePath)
                                 .AppendValue(outputFilePath)
                                 .ToString());
@@ -37,51 +56,53 @@ namespace CuesheetSplitterEncoder.Core.Encoders
                     return new AacEncoder(
                         _quality,
                         (inputFilePath, outputFilePath, quality) =>
-                            new CommandLineBuilder("neroaacenc.exe")
+                            new Builder("neroaacenc.exe")
                                 .AppendDash(
                                     "q", 
                                     quality.ToString("0.00"), 
-                                    CommandLineBuilder.SeparatorType.Space, 
-                                    CommandLineBuilder.QuoteValue.No)
-                                .AppendDash("if", inputFilePath, CommandLineBuilder.SeparatorType.Space)
-                                .AppendDash("of", outputFilePath, CommandLineBuilder.SeparatorType.Space)
+                                    Builder.SeparatorType.Space, 
+                                    Builder.QuoteValue.No)
+                                .AppendDash("if", inputFilePath, Builder.SeparatorType.Space)
+                                .AppendDash("of", outputFilePath, Builder.SeparatorType.Space)
+                                .ToString());
+                }
+                case EncoderType.OggVorbis:
+                {
+                    return new OggVorbisEncoder(
+                        _quality,
+                        (inputFilePath, outputFilePath, quality) => 
+                            new Builder("oggenc2.exe")
+                                .AppendDash(
+                                    "q", 
+                                    quality.ToString("0.00"), 
+                                    Builder.SeparatorType.Space, 
+                                    Builder.QuoteValue.No)
+                                .AppendDash("o", outputFilePath, Builder.SeparatorType.Space)
+                                .AppendValue(inputFilePath)
                                 .ToString());
                 }
                 case EncoderType.Qaac:
-                {
-                    return new AacEncoder(
-                        (int)decimal.Truncate(_quality),
-                        (inputFilePath, outputFilePath, quality) =>
-                            new CommandLineBuilder("qaac.exe")
-                                .AppendDoubleDash("silent")
-                                .AppendDoubleDash(
-                                    "tvbr",
-                                    ((int)decimal.Truncate(quality)).ToString(),
-                                    CommandLineBuilder.SeparatorType.Space,
-                                    CommandLineBuilder.QuoteValue.No)
-                                .AppendDash("o", outputFilePath, CommandLineBuilder.SeparatorType.Space)
-                                .AppendValue(inputFilePath)
-                                .ToString());
-                }
                 case EncoderType.Qaac64:
                 {
                     return new AacEncoder(
-                        (int)decimal.Truncate(_quality),
+                        qualityAsInt,
                         (inputFilePath, outputFilePath, quality) =>
-                            new CommandLineBuilder("qaac64.exe")
+                            new Builder((encoderType == EncoderType.Qaac) ? "qaac.exe" : "qaac64.exe")
                                 .AppendDoubleDash("silent")
                                 .AppendDoubleDash(
                                     "tvbr",
                                     ((int)decimal.Truncate(quality)).ToString(),
-                                    CommandLineBuilder.SeparatorType.Space,
-                                    CommandLineBuilder.QuoteValue.No)
-                                .AppendDash("o", outputFilePath, CommandLineBuilder.SeparatorType.Space)
+                                    Builder.SeparatorType.Space,
+                                    Builder.QuoteValue.No)
+                                .AppendDash("o", outputFilePath, Builder.SeparatorType.Space)
                                 .AppendValue(inputFilePath)
                                 .ToString());
                 }
+                default:
+                {
+                    throw new Exception(string.Format("No encoder is associated with '{0}'", encoderType));
+                }
             }
-
-            throw new Exception(string.Format("No encoder is associated with '{0}'", encoderType));
         }
     }
 }

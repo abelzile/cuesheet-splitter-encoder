@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 
 
@@ -33,11 +32,11 @@ namespace CuesheetSplitterEncoder.Core.Utils
             }
         }
 
-        public static string[] ReadAllLines(this TextReader textReader)
+        public static IEnumerable<string> ReadAllLines(this TextReader textReader)
         {
-            var lines = new List<String>();
-            string line;
+            var lines = new List<string>();
 
+            string line;
             while ((line = textReader.ReadLine()) != null)
             {
                 lines.Add(line);

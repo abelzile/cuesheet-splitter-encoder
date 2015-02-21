@@ -15,7 +15,9 @@ cse.exe -e fhgaacenc:3 -i "C:\path-to-cue\cuesheet.cue" -o "C:\output-path" -c "
                              Valid ENCODER TYPE values are:
 
                              fhgaacenc
+							 lame
                              nero
+							 oggvorbis
                              qaac
                              qaac64
 
@@ -29,9 +31,7 @@ cse.exe -e fhgaacenc:3 -i "C:\path-to-cue\cuesheet.cue" -o "C:\output-path" -c "
                              program. They must be installed separately and
                              copied to the executable directory or made
                              accessible via the System PATH environment
-                             variable. Visit http://wiki.hydrogenaud.io/index.
-
-                             php?title=AAC_encoders to learn more about them.
+                             variable.
 -i, --input=PATH           The PATH to the cue sheet file.
 
                              FLAC, WavPack and Monkey's Audio* files can be
@@ -40,8 +40,6 @@ cse.exe -e fhgaacenc:3 -i "C:\path-to-cue\cuesheet.cue" -o "C:\output-path" -c "
                              installed separately and copied to the
                              executable directory or made accessible via the
                              System PATH environment variable.
-
-                             Non-standard cue sheets are not supported.
 
                              *Ensure the FLAC decoder is installed if
                              splitting Monkey's Audio files. MAC.exe does not

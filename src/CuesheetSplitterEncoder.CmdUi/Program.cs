@@ -31,7 +31,9 @@ namespace CuesheetSplitterEncoder.CmdUi
                                        .AppendLine("Valid {0:ENCODER TYPE} values are: ")
                                        .AppendLine()
                                        .AppendLine("fhgaacenc")
+                                       .AppendLine("lame")
                                        .AppendLine("nero")
+                                       .AppendLine("oggvorbis")
                                        .AppendLine("qaac")
                                        .AppendLine("qaac64")
                                        .AppendLine()
@@ -43,8 +45,6 @@ namespace CuesheetSplitterEncoder.CmdUi
                                        .Append("These encoders are not distributed with this program. ")
                                        .Append("They must be installed separately and copied to the executable directory ")
                                        .Append("or made accessible via the System PATH environment variable. ")
-                                       .Append("Visit http://wiki.hydrogenaud.io/index.php?title=AAC_encoders ")
-                                       .Append("to learn more about them.")
                                        .ToString(),
                     (string encStr, decimal encQual) =>
                     {

@@ -4,7 +4,9 @@
     {
         Undefined,
         Fhgaacenc,
+        Lame,
         Nero,
+        OggVorbis,
         Qaac,
         Qaac64
     }

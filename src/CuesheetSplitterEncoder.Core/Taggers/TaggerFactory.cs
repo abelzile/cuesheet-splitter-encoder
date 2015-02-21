@@ -25,15 +25,16 @@ namespace CuesheetSplitterEncoder.Core.Taggers
             switch (encoderType)
             {
                 case EncoderType.Fhgaacenc:
+                case EncoderType.Lame:
                 case EncoderType.Nero:
                 case EncoderType.Qaac:
                 case EncoderType.Qaac64:
-                {
-                    return new AacTagger(_cueSheet, _coverFilePath);
-                }
+                    return new SimpleTagger(_cueSheet, _coverFilePath);
+                case EncoderType.OggVorbis:
+                    return new OggVorbisTagger(_cueSheet, _coverFilePath);
+                default:
+                    throw new Exception(string.Format("No tagger is associated with '{0}'", encoderType));
             }
-
-            throw new Exception(string.Format("No tagger is associated with '{0}'", encoderType));
         }
     }
 }

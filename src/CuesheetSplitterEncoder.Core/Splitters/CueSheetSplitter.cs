@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using CuesheetSplitterEncoder.Core.CommandLine;
 using CuesheetSplitterEncoder.Core.CueSheet;
+using CuesheetSplitterEncoder.Core.Exceptions;
 using CuesheetSplitterEncoder.Core.Utils;
 
 
@@ -84,9 +85,12 @@ namespace CuesheetSplitterEncoder.Core.Splitters
                     filePath = Path.Combine(cueDirName, fileName);
                 }
 
-                var runner = new CommandLineRunner(_buildArgsFunc(filePath, tempWavPath, skip, until));
-                runner.Run();
-
+                var splitterCmd = new CommandLineRunner(_buildArgsFunc(filePath, tempWavPath, skip, until));
+                splitterCmd.Run();
+                
+                if (splitterCmd.ExitCode != 0)
+                    throw new CommandLineOperationException(splitterCmd.StandardError, splitterCmd.ExitCode);
+                
                 results.Add(new SplitResult(track, tempWavPath));
             }
 

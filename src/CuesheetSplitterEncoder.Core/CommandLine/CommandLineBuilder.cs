@@ -19,13 +19,14 @@ namespace CuesheetSplitterEncoder.Core.CommandLine
         public enum QuoteValue
         {
             Yes,
-            No
+            No,
         }
 
         public enum SeparatorType
         {
             Space,
-            Equals
+            Equals,
+            None,
         }
 
         public CommandLineBuilder AppendDash(string arg)
@@ -94,6 +95,8 @@ namespace CuesheetSplitterEncoder.Core.CommandLine
                     return "=";
                 case SeparatorType.Space:
                     return " ";
+                case SeparatorType.None:
+                    return "";
                 default:
                     return " ";
             }

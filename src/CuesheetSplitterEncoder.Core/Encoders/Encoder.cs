@@ -2,6 +2,7 @@
 using System.IO;
 using CuesheetSplitterEncoder.Core.CommandLine;
 using CuesheetSplitterEncoder.Core.CueSheet;
+using CuesheetSplitterEncoder.Core.Exceptions;
 using CuesheetSplitterEncoder.Core.Taggers;
 
 
@@ -37,8 +38,11 @@ namespace CuesheetSplitterEncoder.Core.Encoders
 
             string buildArgsFunc = _buildArgsFunc(inputFilePath, outputFilePath, _quality);
 
-            var runner = new CommandLineRunner(buildArgsFunc);
-            runner.Run();
+            var encoderCmd = new CommandLineRunner(buildArgsFunc);
+            encoderCmd.Run();
+
+            if (encoderCmd.ExitCode != 0)
+                throw new CommandLineOperationException(encoderCmd.StandardError, encoderCmd.ExitCode);
 
             tagger.Tag(outputFilePath, track);
 
