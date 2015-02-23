@@ -2,8 +2,6 @@
 using System.Reflection;
 using TagLib;
 using TagLib.Ogg;
-using File = TagLib.File;
-using Picture = TagLib.Picture;
 
 
 namespace CuesheetSplitterEncoder.Core.Taggers
@@ -15,18 +13,18 @@ namespace CuesheetSplitterEncoder.Core.Taggers
         {
         }
 
-        protected override void SetPicture(File file, Tag tag)
+        protected override void SetPicture(TagLib.File file, Tag tag)
         {
             TagLib.Ogg.File oggFile = (TagLib.Ogg.File)file;
             GroupedComment groupedCommentTag = (GroupedComment)tag;
 
             if (string.IsNullOrWhiteSpace(CoverFilePath)) return;
 
-            // Is there a way to get Ogg file header using taglib?
+            // Is there a way to get Ogg file header using TagLib#?
             PropertyInfo headerProp = oggFile.GetType().GetProperty("LastPageHeader", BindingFlags.Instance | BindingFlags.NonPublic);
             PageHeader header = (PageHeader)headerProp.GetValue(oggFile);
 
-            // Add cover art to Ogg Vorbis approved METADATA_BLOCK_PICTURE field.
+            // Add cover art to Vorbis Comment approved METADATA_BLOCK_PICTURE field.
             TagLib.Flac.Picture pic = new TagLib.Flac.Picture(new Picture(CoverFilePath)) { Description = "" };
             ByteVector picData = pic.Render();
 

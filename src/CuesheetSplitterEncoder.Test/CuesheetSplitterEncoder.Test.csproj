@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="CueSheetParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ToTitleCaseTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CuesheetSplitterEncoder.Core\CuesheetSplitterEncoder.Core.csproj">

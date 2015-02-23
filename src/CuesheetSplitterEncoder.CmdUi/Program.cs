@@ -98,24 +98,7 @@ namespace CuesheetSplitterEncoder.CmdUi
                 using (ISplitter splitter = splitterFactory.Build())
                 {
                     Console.WriteLine("Starting...");
-
-                    string msg;
-
-                    if (cueSheet.IsStandard)
-                    {
-                        msg = "standard";
-                    }
-                    else
-                    {
-                        msg = "nonstandard";
-
-                        if (cueSheet.IsNoncompliant)
-                        {
-                            msg += ", noncompliant";
-                        }
-                    }
-
-                    Console.WriteLine("Splitting " + msg + " cue sheet into WAV files...");
+                    Console.WriteLine("Splitting {0} cue sheet into WAV files...", BuildCuesheetTypeStr(cueSheet));
 
                     stopwatch.Start();
 
@@ -136,8 +119,9 @@ namespace CuesheetSplitterEncoder.CmdUi
                             string title = track.Title.Trim();
 
                             Console.WriteLine(
-                                "Processing '{0}' (Thread {1})...",
+                                "Encoding '{0}' to {1} (Thread {2})...",
                                 title,
+                                encoder.FileType,
                                 Thread.CurrentThread.ManagedThreadId);
 
                             string tempEncodedFilePath = encoder.Encode(wavFilePath, track, tagger);
@@ -173,6 +157,27 @@ namespace CuesheetSplitterEncoder.CmdUi
                 Console.WriteLine("Click any key to exit.");
                 Console.ReadKey();
             }
+        }
+
+        static string BuildCuesheetTypeStr(CueSheet cueSheet)
+        {
+            string msg;
+
+            if (cueSheet.IsStandard)
+            {
+                msg = "standard";
+            }
+            else
+            {
+                msg = "nonstandard";
+
+                if (cueSheet.IsNoncompliant)
+                {
+                    msg += ", noncompliant";
+                }
+            }
+
+            return msg;
         }
 
         static string BuildEncodedFileOutputPath(
