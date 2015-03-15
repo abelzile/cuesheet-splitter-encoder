@@ -137,7 +137,7 @@ namespace CuesheetSplitterEncoder.Core.CueSheet.Parsers
             ParseTrackCommands(tracks);
 
             if (_cueSheet.Files.Count != tracks.Count) 
-                throw new Exception("File count and track count don't match.");
+                throw new Exception("File count and track count don't match. Maybe file contains tracks that aren't AUDIO?");
 
             for (int i = 0; i < _cueSheet.Files.Count; ++i)
             {
@@ -201,11 +201,14 @@ namespace CuesheetSplitterEncoder.Core.CueSheet.Parsers
                     case "TRACK":
                     {
                         Track track = new FileLineTrackParser(fileLine).Parse();
+
+                        if (track.TrackType != "AUDIO") continue;
+
                         tracks.Add(track);
                         
                         foreach (var trackLine in _cueLines.Skip(i + 1)
-                                                      .Select(line => new FileLine(line))
-                                                      .TakeWhile(line => line.Command != "TRACK"))
+                                                           .Select(line => new FileLine(line))
+                                                           .TakeWhile(line => line.Command != "TRACK"))
                         {
                             switch (trackLine.Command)
                             {
