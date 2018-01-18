@@ -15,9 +15,9 @@ cse.exe -e fhgaacenc:3 -i "C:\path-to-cue\cuesheet.cue" -o "C:\output-path" -c "
                              Valid ENCODER TYPE values are:
 
                              fhgaacenc
-							 lame
+			     lame
                              nero
-							 oggvorbis
+			     oggvorbis
                              qaac
                              qaac64
 
